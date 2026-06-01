@@ -110,16 +110,6 @@ try:
 
     dates_test = df.index[split:]
 
-    # Debug info
-    st.write("DF shape:", df.shape)
-    st.write("X_train shape:", X_train.shape)
-    st.write("Missing values:")
-    st.write(X_train.isna().sum())
-
-    if len(X_train) == 0:
-        st.error("Training dataset is empty.")
-        st.stop()
-
     with st.spinner("Training models..."):
 
         rf = RandomForestRegressor(
@@ -162,7 +152,60 @@ try:
     c2.metric("RMSE", f"${rmse:,.0f}")
     c3.metric("R²", f"{r2:.3f}")
     c4.metric("vs Naive", f"${naive_mae - mae:,.0f}")
+    st.subheader("Forecast vs Actual Price")
 
+    fig, ax = plt.subplots(figsize=(12, 5))
+
+    ax.plot(
+        dates_test,
+        y_test.values,
+        label="Actual Price",
+        color="white",
+        linewidth=1.5
+    )
+
+    ax.plot(
+        dates_test,
+        final_preds,
+        label="Predicted",
+        color="orange",
+        linewidth=1.5,
+        linestyle="--"
+    )
+
+    ax.set_facecolor("#1a1a2e")
+    fig.patch.set_facecolor("#1a1a2e")
+
+    ax.tick_params(colors="white")
+    ax.legend(facecolor="#1a1a2e", labelcolor="white")
+    ax.set_ylabel("Price (USD)", color="white")
+
+    st.pyplot(fig)
+
+    st.subheader("Feature Importance (Random Forest)")
+
+    importance = pd.Series(
+        rf.feature_importances_,
+        index=feature_cols
+    ).sort_values(ascending=True)
+
+    fig2, ax2 = plt.subplots(figsize=(8, 5))
+
+    importance.plot(
+        kind="barh",
+        ax=ax2,
+        color="orange"
+    )
+
+    ax2.set_facecolor("#1a1a2e")
+    fig2.patch.set_facecolor("#1a1a2e")
+    ax2.tick_params(colors="white")
+
+    st.pyplot(fig2)
+
+    st.caption(
+        "Data sourced from Yahoo Finance. Not financial advice."
+    )
 except Exception as e:
     st.error(f"ERROR: {e}")
     st.exception(e)
