@@ -152,6 +152,31 @@ try:
     c2.metric("RMSE", f"${rmse:,.0f}")
     c3.metric("R²", f"{r2:.3f}")
     c4.metric("vs Naive", f"${naive_mae - mae:,.0f}")
+
+     # Tomorrow forecast
+    latest_features = X.iloc[[-1]]
+
+    rf_next = rf.predict(latest_features)[0]
+    xgb_next = xgb.predict(latest_features)[0]
+
+    next_day_forecast = (
+        rf_weight * rf_next +
+        gb_weight * xgb_next
+    )
+
+    st.markdown("---")
+
+    forecast_col, current_col = st.columns(2)
+
+    forecast_col.metric(
+        "🔮 Tomorrow Forecast",
+        f"${next_day_forecast:,.0f}"
+    )
+
+    current_col.metric(
+        "📈 Current Price",
+        f"${df['close'].iloc[-1]:,.0f}"
+    )
     st.subheader("Forecast vs Actual Price")
 
     fig, ax = plt.subplots(figsize=(12, 5))
