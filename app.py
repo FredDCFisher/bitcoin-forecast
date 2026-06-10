@@ -232,5 +232,4 @@ try:
         "Data sourced from Yahoo Finance. Not financial advice."
     )
 except Exception as e:
-    st.error(f"ERROR: {e}")
-    st.exception(e)
+    st.error(str(e))
